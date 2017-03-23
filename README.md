@@ -54,3 +54,5 @@ Celery + RabbitMQ
 Constrain seat selection:
 
 Seats one-by-one and maximum of 5 in single booking. Unable to leave one-seat space.
+
+Refactoring
