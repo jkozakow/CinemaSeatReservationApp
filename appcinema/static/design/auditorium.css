@@ -1,0 +1,28 @@
+.seat {
+
+    width: 20px;
+    height: 20px;
+    margin: 5px;
+    border: solid 1px black;
+    float: left;
+
+
+}
+
+.clearfix { clear: both;}
+
+.hovering{
+	background-color: blue;
+}
+.available {
+    background-color: lightgreen;
+}
+.selected{
+    background-color: red;
+}
+.tentative{
+    background-color: pink;
+}
+.own_tentative{
+    background-color: yellow;
+}

@@ -1,0 +1,8 @@
+{
+    "name": "appcinema",
+    "devDependencies": {
+        "coffee-script": "",
+        "grunt": "",
+        "grunt-contrib-coffee": ""
+    }
+}

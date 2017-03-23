@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Select movie:</h1>
+    <div class="content ng-cloak" ng-controller="AppController" ng-app="appcinema.app.movies">
+        {% verbatim %}
+        <select ng-model="selectedMovies" ng-options="y.__str__ for (x, y) in movies">
+        </select>
+        <a href="/movies/{{ selectedMovies.id }}">Buy tickets</a>
+       {% endverbatim %}
+    </div>
+{% endblock %}

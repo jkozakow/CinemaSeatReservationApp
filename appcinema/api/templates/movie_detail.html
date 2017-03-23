@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'design/auditorium.css' %}">
+{% endblock %}
+{% block content %}
+    <h1>Selected movie {{ object.name }}, date: {{ object.date }}</h1>
+
+<div id="auditorium_seats"></div>
+<form id="booking_form" method="post" action="/create_booking/">
+    {% csrf_token %}
+    <input type="hidden" name="booking_seats" id="booking_seats"/>
+    <input type="hidden" name="movie_id" value="{{ object.pk }}"/>
+    <input type="hidden" name="movie" value="{{ object }}"/>
+    <button type="submit" id="submit">Submit booking</button>
+</form>
+{% endblock %}
+{% block js %}
+{{ block.super }}
+<script src="https://js.pusher.com/4.0/pusher.min.js"></script>
+  <script>
+
+    // Enable pusher logging - don't include this in production
+    Pusher.logToConsole = true;
+
+    var pusher = new Pusher('54588768815deb1f1484', {
+      cluster: 'eu',
+      encrypted: true
+    });
+    var channel = pusher.subscribe('movie_{{object.pk}}');
+
+    var addTentativeSeats = function (data) {
+        if (!$("#seat_" + data.seat_id).hasClass('own_tentative')){
+            $("#seat_" + data.seat_id).addClass('tentative');
+        }
+        $("#seat_" + data.seat_id).removeClass('available');
+    };
+
+    var tentativeToBooked = function (data) {
+        var seats_array = JSON.parse(data.seats);
+        for (var seat in seats_array) {
+            $("#seat_" + seats_array[seat]).removeClass('available');
+            $("#seat_" + seats_array[seat]).removeClass('tentative');
+            $("#seat_" + seats_array[seat]).addClass('selected');
+        }
+    };
+
+    var destroyTentativeSeats = function (data) {
+        $("#seat_" + data.seat_id).removeClass('tentative');
+        $("#seat_" + data.seat_id).removeClass('own_tentative');
+        $("#seat_" + data.seat_id).addClass('available');
+    };
+
+    pusher.bind('add_tentative_seat', addTentativeSeats);
+    pusher.bind('destroy_tentative_seat', destroyTentativeSeats);
+    pusher.bind('tentative_to_booked', tentativeToBooked);
+  </script>
+<script>
+$(function(){
+    $(document).ready(createseating());
+});
+function tentativeClick(seat_id){
+    if( $("#seat_" + seat_id).hasClass('available')){
+        $("#seat_" + seat_id).removeClass( "available" );
+        $("#seat_" + seat_id).addClass( "own_tentative" );
+        $.get("/movies/update/{{object.pk}}/" + seat_id + "/");
+    }
+    else if ( $("#seat_" + seat_id).hasClass('own_tentative')){
+        $("#seat_" + seat_id).removeClass( "own_tentative" );
+        $("#seat_" + seat_id).addClass( "tentative" );
+    }
+    return false;
+}
+
+function isSeatCloseBy(seat_id){
+    var tentatives = $(".tentative")
+}
+
+function createseating(){
+    var booked_seats = {{ object.booked_seats }};
+    var tentative_booked = {{ object.tentative_booked }};
+    var seatingValue = [];
+    for ( var i = 0; i < 10; i++){
+        for (var j=0; j<10; j++){
+            var seat_id = i*10+j;
+            if ( $.inArray(seat_id, booked_seats) != -1) {
+                var seatingStyle = "<div id='seat_" + seat_id + "' class='seat selected'></div>";
+            }
+            else if ( $.inArray(seat_id, tentative_booked) != -1) {
+                var seatingStyle = "<div id='seat_" + seat_id + "' class='seat tentative'></div>";
+            }
+            else {
+                var seatingStyle = "<div id='seat_" + seat_id + "' class='seat available' onclick='tentativeClick(" + seat_id + ");'></div>";
+            }
+            seatingValue.push(seatingStyle);
+            if ( j === 9){
+                var seatingStyle = "<div class='clearfix'></div>";
+                seatingValue.push(seatingStyle);
+            }
+        }
+}
+
+$('#auditorium_seats').html(seatingValue);
+$(function(){
+    $('.seat').mouseenter(function(){
+        $( this ).addClass( "hovering" );
+        $('.seat').mouseleave(function(){
+        $( this ).removeClass( "hovering" );
+    });
+    $('#submit').click(function(){
+        var book_seats = $('.own_tentative');
+        var seats_array = [];
+        book_seats.each(function(){
+            seats_array.push($(this).attr('id'));
+        });
+        $("#booking_seats").val(seats_array);
+    });
+});
+
+});
+
+};
+
+</script>
+{% endblock %}

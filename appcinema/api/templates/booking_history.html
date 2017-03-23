@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% for object in object_list %}
+        <dd>Movie</dd>
+        <dt>{{ object.movie }}</dt>
+        <dd>Seats</dd>
+        <dt>{{ object.seats }}</dt>
+    {% endfor %}
+{% endblock %}

@@ -1,0 +1,22 @@
+[
+  {
+    "model": "api.movie",
+    "pk": 3,
+    "fields": {
+      "name": "Matrix",
+      "date": "2017-03-23 16:00:00+01",
+      "booked_seats": "[1,2,5,6,56,57,58]",
+      "tentative_booked": "[]"
+    }
+  },
+  {
+    "model": "api.movie",
+    "pk": 4,
+    "fields": {
+      "name": "Logan",
+      "date": "2017-03-23 18:45:00+01",
+      "booked_seats": "[1,6,56,57,58]",
+      "tentative_booked": "[]"
+    }
+  }
+]

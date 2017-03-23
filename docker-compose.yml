@@ -1,0 +1,50 @@
+version: '2'
+services:
+  db:
+    image: postgres:9.3
+    hostname: db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "5433:5433"
+  rabbit:
+    hostname: rabbit
+    image: rabbitmq:3.6.0
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=mypass
+    ports:
+      - "5672:5672"  # we forward this port because it's useful for debugging
+      - "15672:15672"  # here, we can access rabbitmq management plugin
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    hostname: web
+    command: ./scripts/run_web.sh
+    volumes:
+      - .:/app  # mount current directory inside container
+    ports:
+      - "8000:8000"
+    # set up links so that web knows about db, rabbit
+    links:
+      - db
+      - rabbit
+    depends_on:
+      - db
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ./scripts/run_celery.sh
+    volumes:
+      - .:/app
+    links:
+      - db
+      - rabbit
+    depends_on:
+      - rabbit

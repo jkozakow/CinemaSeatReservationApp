@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block content %}
+<h1>Choosen movie: {{ movie }}</h1>
+<h1>Choosen seats: {{ seats }}</h1>
+<form id="confirm_form" method="post" action="/confirm_booking/">
+    {% csrf_token %}
+    <input type="hidden" name="seats" id="booking_seats" value="{{ seats }}"/>
+    <input type="hidden" name="movie_id" value="{{ movie_id }}"/>
+    <button type="submit">Confirm</button>
+</form>
+{% endblock %}
