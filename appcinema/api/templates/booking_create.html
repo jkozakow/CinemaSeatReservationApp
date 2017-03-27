@@ -7,6 +7,6 @@
     {% csrf_token %}
     <input type="hidden" name="seats" id="booking_seats" value="{{ seats }}"/>
     <input type="hidden" name="movie_id" value="{{ movie_id }}"/>
-    <button type="submit">Confirm</button>
+    <button class="btn btn-success" type="submit">Confirm</button>
 </form>
 {% endblock %}

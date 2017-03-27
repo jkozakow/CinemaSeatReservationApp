@@ -12,13 +12,87 @@
     <input type="hidden" name="booking_seats" id="booking_seats"/>
     <input type="hidden" name="movie_id" value="{{ object.pk }}"/>
     <input type="hidden" name="movie" value="{{ object }}"/>
-    <button type="submit" id="submit">Submit booking</button>
+    <button class="btn btn-default" type="submit" id="submit">Submit booking</button>
 </form>
 {% endblock %}
 {% block js %}
 {{ block.super }}
 <script src="https://js.pusher.com/4.0/pusher.min.js"></script>
   <script>
+
+function getSeatId(seat){
+    return parseInt(seat.id.split('seat_')[1]);
+}
+
+function isSeatInSameRow(seat_src, seat_click){
+    if (seat_src.toString()[0] == seat_click.toString()[0]){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+function isSeatCloseBy(seat_id){
+    var tentatives = $(".own_tentative");
+    var seats = [];
+    tentatives.each(function(){
+            seats.push(getSeatId(this));
+        });
+    if (tentatives.length > 0){
+        if (!isSeatInSameRow(seats[0], seat_id)){
+            return false
+        }
+        var max = Math.max.apply(Math, seats);
+        var min = Math.min.apply(Math, seats);
+        if (seat_id == max + 1 || seat_id == min - 1){
+            return true
+        }
+        else{
+            return false
+        }
+    }
+    else{
+        return true;
+    }
+}
+
+function isSeatAvailableToBook(seat_id){
+    if ($(".own_tentative").length < 5 && isSeatCloseBy(seat_id) != 0 && $("#seat_" + seat_id).hasClass('available') != 0) {
+        return true;
+    }
+}
+
+function isOnlyOneSeatInBetween(){
+    var tentatives = $(".own_tentative");
+    var tentative_seats = []
+    tentatives.each(function(){
+        tentative_seats.push(getSeatId(this));
+    });
+    var tentative_max = Math.max.apply(Math, tentative_seats);
+    var tentative_min = Math.min.apply(Math, tentative_seats);
+    var books = $(".selected");
+    var booked_seats = []
+    books.each(function(){
+        booked_seats.push(getSeatId(this));
+    });
+    var availables = $(".available");
+    var available_seats = []
+    availables.each(function(){
+        available_seats.push(getSeatId(this));
+    });
+    if ( (booked_seats.includes(tentative_max + 2) && available_seats.includes(tentative_max + 1)) ||
+         (booked_seats.includes(tentative_min - 2) && available_seats.includes(tentative_min - 1)) ||
+          (tentative_max + 1).toString().slice(-1) == 9 || (tentative_min - 1).toString().slice(-1) == 0 ){
+
+        $('#submit').after("<p>You can't leave single free seat to book</p>");
+        return true;
+    }
+    else{
+        return false;
+    }
+
+}
 
     // Enable pusher logging - don't include this in production
     Pusher.logToConsole = true;
@@ -59,21 +133,19 @@
 $(function(){
     $(document).ready(createseating());
 });
+
 function tentativeClick(seat_id){
-    if( $("#seat_" + seat_id).hasClass('available')){
+    if( isSeatAvailableToBook(seat_id) ){
         $("#seat_" + seat_id).removeClass( "available" );
         $("#seat_" + seat_id).addClass( "own_tentative" );
-        $.get("/movies/update/{{object.pk}}/" + seat_id + "/");
+        $.get("/movies/add_seat/{{object.pk}}/" + seat_id + "/");
     }
     else if ( $("#seat_" + seat_id).hasClass('own_tentative')){
         $("#seat_" + seat_id).removeClass( "own_tentative" );
-        $("#seat_" + seat_id).addClass( "tentative" );
+        $("#seat_" + seat_id).addClass( "available" );
+        $.get("/movies/remove_seat/{{object.pk}}/" + seat_id + "/");
     }
     return false;
-}
-
-function isSeatCloseBy(seat_id){
-    var tentatives = $(".tentative")
 }
 
 function createseating(){
@@ -107,7 +179,11 @@ $(function(){
         $('.seat').mouseleave(function(){
         $( this ).removeClass( "hovering" );
     });
-    $('#submit').click(function(){
+    $('#booking_form').submit(function(e){
+        if ( isOnlyOneSeatInBetween() ){
+            e.stopImmediatePropagation();
+            return false;
+        }
         var book_seats = $('.own_tentative');
         var seats_array = [];
         book_seats.each(function(){

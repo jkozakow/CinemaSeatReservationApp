@@ -5,8 +5,8 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 
-from appcinema.api.views import MovieDetailView, add_tentative_seat, booking_create_view, confirm_booking, \
-    BookingHistoryView
+from appcinema.api.views import MovieDetailView, add_tentative_seat, remove_tentative_seat, booking_create_view, \
+    confirm_booking, BookingHistoryView
 
 admin.autodiscover()
 
@@ -19,7 +19,8 @@ urlpatterns = [
     url(r'^oauth/', include('social_django.urls', namespace='social')),
     url(r'^movies/$', TemplateView.as_view(template_name='movies.html')),
     url(r'^movies/(?P<pk>[0-9]+)/$', login_required(MovieDetailView.as_view())),
-    url(r'^movies/update/(?P<movie_pk>[0-9]+)/(?P<seat_id>[0-9]+)/$', add_tentative_seat, name='movie-update'),
+    url(r'^movies/add_seat/(?P<movie_pk>[0-9]+)/(?P<seat_id>[0-9]+)/$', add_tentative_seat, name='movie-update'),
+    url(r'^movies/remove_seat/(?P<movie_pk>[0-9]+)/(?P<seat_id>[0-9]+)/$', remove_tentative_seat, name='movie-update'),
     url(r'^create_booking/$', booking_create_view, name='create_booking'),
     url(r'^confirm_booking/$', confirm_booking, name='confirm_booking'),
     url(r'^history/', login_required(BookingHistoryView.as_view()), name='booking_history'),

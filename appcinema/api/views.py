@@ -1,6 +1,6 @@
 from django.views.generic import DetailView, ListView
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.contrib.auth import get_user
 
@@ -36,8 +36,28 @@ def add_tentative_seat(request, movie_pk, seat_id):
     return HttpResponse('')
 
 
+def remove_tentative_seat(request, movie_pk, seat_id):
+    channel = u"movie_%s" % movie_pk
+
+    pusher = Pusher(app_id=settings.PUSHER_APP_ID,
+                    key=settings.PUSHER_KEY,
+                    secret=settings.PUSHER_SECRET,
+                    cluster=settings.PUSHER_CLUSTER)
+    pusher.trigger(
+        [channel, ],
+        'add_tentative_seat',
+        {
+            'seat_id': seat_id,
+        }
+    )
+    destroy_tentative_seat(movie_pk, int(seat_id))
+    return HttpResponse('')
+
+
 def booking_create_view(request):
     seats_data = request.POST.get('booking_seats')
+    if not seats_data:
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     seats = seats_data.split(",")
     seat_ids = []
 

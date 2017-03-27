@@ -35,7 +35,3 @@ RUN python setup.py develop
 
 ADD Gruntfile.coffee /src/
 RUN grunt
-
-EXPOSE 80
-
-CMD ["./manage.py", "runserver", "0.0.0.0:80"]

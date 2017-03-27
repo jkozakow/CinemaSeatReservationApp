@@ -6,25 +6,25 @@ from appcinema.api.models import Movie
 
 @task(ignore_result=True)
 def destroy_tentative_seat(movie_pk, seat_id):
-    movie = Movie.objects.get(pk=movie_pk)
     try:
+        movie = Movie.objects.get(pk=movie_pk)
         movie.tentative_booked.remove(seat_id)
+        movie.save()
+        channel = u"movie_%s" % movie_pk
+
+        pusher = Pusher(app_id=settings.PUSHER_APP_ID,
+                        key=settings.PUSHER_KEY,
+                        secret=settings.PUSHER_SECRET,
+                        cluster=settings.PUSHER_CLUSTER)
+        pusher.trigger(
+            [channel, ],
+            'destroy_tentative_seat',
+            {
+                'seat_id': seat_id,
+            }
+        )
     except Exception:
         pass
-    movie.save()
-    channel = u"movie_%s" % movie_pk
-
-    pusher = Pusher(app_id=settings.PUSHER_APP_ID,
-                    key=settings.PUSHER_KEY,
-                    secret=settings.PUSHER_SECRET,
-                    cluster=settings.PUSHER_CLUSTER)
-    pusher.trigger(
-        [channel, ],
-        'destroy_tentative_seat',
-        {
-            'seat_id': seat_id,
-        }
-    )
 
 
 @task

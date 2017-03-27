@@ -47,10 +47,3 @@ docker-compose up
 ## Additional technologies
 
 Celery + RabbitMQ
-
-
-## TO DO
-
-Constrain seat selection:
-
-Seats one-by-one and maximum of 5 in single booking. Unable to leave one-seat space.

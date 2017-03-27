@@ -29,6 +29,8 @@ services:
       - .:/app  # mount current directory inside container
     ports:
       - "8000:8000"
+    networks:
+      - default
     # set up links so that web knows about db, rabbit
     links:
       - db
