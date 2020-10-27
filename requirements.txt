@@ -4,7 +4,7 @@ asn1crypto==0.22.0
 billiard==3.5.0.2
 celery==4.0.2
 cffi==1.10.0
-cryptography==1.8.1
+cryptography==3.2
 defusedxml==0.4.1
 Django==1.10.6
 django-debug-toolbar==1.7
