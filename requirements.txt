@@ -9,7 +9,7 @@ defusedxml==0.4.1
 Django==1.10.6
 django-debug-toolbar==1.7
 django-extensions==1.7.7
-djangorestframework==3.6.2
+djangorestframework==3.11.2
 idna==2.5
 kombu==4.0.2
 ndg-httpsclient==0.4.2
