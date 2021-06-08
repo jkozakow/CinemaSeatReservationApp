@@ -16,7 +16,7 @@ ndg-httpsclient==0.4.2
 oauthlib==2.0.2
 olefile==0.44
 packaging==16.8
-Pillow==4.0.0
+Pillow==8.2.0
 psycopg2==2.7.1
 pusher==1.6
 pyasn1==0.2.3
